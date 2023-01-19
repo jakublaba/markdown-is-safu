@@ -2,15 +2,26 @@ version: "3"
 
 services:
   db:
+    container_name: odas-db
     image: postgres
     environment:
       - POSTGRES_USER=odsi
       - POSTGRES_PASSWORD=odsi
-  app:
+  backend:
+    container_name: odas-backend
     depends_on:
       - db
     build:
-      context: .
+      context: backend
       dockerfile: Dockerfile
     ports:
       - "8080:8080"
+  frontend:
+    container_name: odas-frontend
+    depends_on:
+      - backend
+    build:
+      context: backend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
