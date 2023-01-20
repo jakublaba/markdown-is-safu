@@ -33,7 +33,6 @@ import java.security.SecureRandom;
 @RequiredArgsConstructor
 public class WebSecurityConfig {
 
-    // TODO - generate certs on docker startup rather than having them in git repo
     private final RsaKeyProperties rsaKeys;
     private final UserDetailsServiceImpl userDetailsService;
 
@@ -79,17 +78,17 @@ public class WebSecurityConfig {
                 .cors()
                 .and()
                 .csrf(AbstractHttpConfigurer::disable)
-                .authenticationProvider(authProvider())
-                .oauth2ResourceServer(OAuth2ResourceServerConfigurer::jwt)
-                .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .logout(l -> l.logoutUrl("/api/auth/logout"))
                 .authorizeHttpRequests(r -> r
                         .requestMatchers("/swagger-ui.html").permitAll()
                         .requestMatchers("/swagger-ui/**").permitAll()
-                        .requestMatchers("/v3/api-docs").permitAll()
+                        .requestMatchers("/v3/api-docs/**").permitAll()
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/notes/**").authenticated()
                 )
+                .logout(l -> l.logoutUrl("/api/auth/logout"))
+                .authenticationProvider(authProvider())
+                .oauth2ResourceServer(OAuth2ResourceServerConfigurer::jwt)
+                .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .build();
     }
 

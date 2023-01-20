@@ -1,6 +1,6 @@
 COMPOSE=docker-compose
 COMPOSE_FLAGS=-d
-IMAGES=odas-backend odas-frontend
+IMAGES=odas_backend odas_frontend
 
 start:
 	$(COMPOSE) up $(FLAGS)
