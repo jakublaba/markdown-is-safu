@@ -20,7 +20,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class NoteController {
 
-    private NoteService noteService;
+    private final NoteService noteService;
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<UUID> upload(
