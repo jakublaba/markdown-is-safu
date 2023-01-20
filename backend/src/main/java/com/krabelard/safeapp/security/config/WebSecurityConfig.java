@@ -82,6 +82,7 @@ public class WebSecurityConfig {
                 .authenticationProvider(authProvider())
                 .oauth2ResourceServer(OAuth2ResourceServerConfigurer::jwt)
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .logout(l -> l.logoutUrl("/api/auth/logout"))
                 .authorizeHttpRequests(r -> r
                         .requestMatchers("/swagger-ui.html").permitAll()
                         .requestMatchers("/swagger-ui/**").permitAll()
