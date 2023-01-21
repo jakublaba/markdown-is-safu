@@ -1,4 +1,10 @@
 package com.krabelard.safeapp.dto;
 
-public record UserDTO() {
+import lombok.Builder;
+
+@Builder
+public record UserDTO(
+        String username,
+        String email
+) {
 }
