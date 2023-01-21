@@ -19,7 +19,8 @@ public class AuthController {
 
     private final AuthService authService;
 
-    @GetMapping
+    // since sessions are stateless - it returns username only if bearer token is passed in Authorization header
+    @GetMapping("/whoami")
     public ResponseEntity<String> whoami() {
         return ResponseEntity.ok(SecurityContextHolder.getContext().getAuthentication().getName());
     }

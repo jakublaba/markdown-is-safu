@@ -52,11 +52,10 @@ public class AuthService {
                 new UsernamePasswordAuthenticationToken(dto.username(), dto.password())
         );
 
-        val securityContext = SecurityContextHolder.getContext();
-        securityContext.setAuthentication(auth);
+        SecurityContextHolder.getContext().setAuthentication(auth);
 
         val jwt = jwtService.generateToken(auth);
-        
+
         return CredentialsDTO.builder()
                 .username(dto.username())
                 .email(

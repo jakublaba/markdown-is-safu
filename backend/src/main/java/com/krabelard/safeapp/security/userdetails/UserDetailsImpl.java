@@ -34,7 +34,7 @@ public class UserDetailsImpl implements UserDetails {
     // leaving this for clarity of what's inherited, even though lombok would take care of it
     @Override
     public String getPassword() {
-        return this.username;
+        return this.password;
     }
 
     // leaving this for clarity of what's inherited, even though lombok would take care of it
@@ -62,5 +62,5 @@ public class UserDetailsImpl implements UserDetails {
     public boolean isEnabled() {
         return true;
     }
-    
+
 }
