@@ -13,6 +13,7 @@ import com.krabelard.safeapp.repository.NoteRepository;
 import com.krabelard.safeapp.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
@@ -30,9 +31,9 @@ public class NoteService {
     private final UserRepository userRepository;
     private final NoteMapper noteMapper;
 
-    public UUID create(MultipartFile file, String ownerUsername) {
+    public UUID create(MultipartFile file) {
         val fileName = StringUtils.cleanPath(Objects.requireNonNull(file.getOriginalFilename()));
-        if (noteRepository.existsByNameAndOwnerUsername(fileName, ownerUsername)) {
+        if (noteRepository.existsByNameAndOwnerUsername(fileName, currentUser())) {
             throw new NoteConflictException(fileName);
         }
 
@@ -41,8 +42,8 @@ public class NoteService {
             val note = Note.builder()
                     .uuid(UUID.randomUUID())
                     .name(fileName)
-                    .owner(userRepository.findByUsername(ownerUsername)
-                            .orElseThrow(() -> new UserNotFoundException(ownerUsername)))
+                    .owner(userRepository.findByUsername(currentUser())
+                            .orElseThrow(() -> new UserNotFoundException(currentUser())))
                     .content(content)
                     .build();
 
@@ -52,15 +53,15 @@ public class NoteService {
         }
     }
 
-    public List<NoteDTO> fetchNoteList(String ownerUsername) {
-        return noteRepository.findAllByOwnerUsername(ownerUsername)
+    public List<NoteDTO> fetchNoteList() {
+        return noteRepository.findAllByOwnerUsername(currentUser())
                 .stream()
                 .map(noteMapper::entityToDto)
                 .toList();
     }
 
-    public FileDTO downloadNote(UUID uuid, String ownerUsername) {
-        val note = noteRepository.findByUuidAndOwnerUsername(uuid, ownerUsername)
+    public FileDTO downloadNote(UUID uuid) {
+        val note = noteRepository.findByUuidAndOwnerUsername(uuid, currentUser())
                 .orElseThrow(() -> new NoteNotFoundException(uuid));
 
         return FileDTO.builder()
@@ -69,8 +70,8 @@ public class NoteService {
                 .build();
     }
 
-    public NoteDTO update(UUID uuid, MultipartFile file, String ownerUsername) {
-        val note = noteRepository.findByUuidAndOwnerUsername(uuid, ownerUsername)
+    public NoteDTO update(UUID uuid, MultipartFile file) {
+        val note = noteRepository.findByUuidAndOwnerUsername(uuid, currentUser())
                 .orElseThrow(() -> new NoteNotFoundException(uuid));
         val fileName = StringUtils.cleanPath(Objects.requireNonNull(file.getOriginalFilename()));
         note.setName(fileName);
@@ -83,11 +84,15 @@ public class NoteService {
         return noteMapper.entityToDto(noteRepository.save(note));
     }
 
-    public void delete(UUID uuid, String ownerUsername) {
-        val note = noteRepository.findByUuidAndOwnerUsername(uuid, ownerUsername)
+    public void delete(UUID uuid) {
+        val note = noteRepository.findByUuidAndOwnerUsername(uuid, currentUser())
                 .orElseThrow(() -> new NoteNotFoundException(uuid));
 
         noteRepository.delete(note);
+    }
+
+    private String currentUser() {
+        return SecurityContextHolder.getContext().getAuthentication().getName();
     }
 
 }

@@ -24,11 +24,8 @@ public class NoteController {
     private final NoteService noteService;
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<UUID> upload(
-            @RequestParam("note") MultipartFile file,
-            @RequestParam("owner") String username
-    ) {
-        val uuid = noteService.create(file, username);
+    public ResponseEntity<UUID> upload(@RequestParam("note") MultipartFile file) {
+        val uuid = noteService.create(file);
 
         return new ResponseEntity<>(uuid, HttpStatus.CREATED);
     }
@@ -37,18 +34,15 @@ public class NoteController {
             value = "/all",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public ResponseEntity<List<NoteDTO>> all(@RequestParam("owner") String username) {
-        val notes = noteService.fetchNoteList(username);
+    public ResponseEntity<List<NoteDTO>> all() {
+        val notes = noteService.fetchNoteList();
 
         return ResponseEntity.ok(notes);
     }
 
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<byte[]> download(
-            @RequestParam("uuid") UUID uuid,
-            @RequestParam("owner") String username
-    ) {
-        val note = noteService.downloadNote(uuid, username);
+    public ResponseEntity<byte[]> download(@RequestParam("uuid") UUID uuid) {
+        val note = noteService.downloadNote(uuid);
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, String.format("attachment; filename=\"%s\"", note.fileName()))
@@ -56,11 +50,8 @@ public class NoteController {
     }
 
     @PutMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<NoteDTO> update(
-            @RequestParam("uuid") UUID uuid,
-            @RequestParam("owner") String username
-    ) {
-        noteService.delete(uuid, username);
+    public ResponseEntity<NoteDTO> update(@RequestParam("uuid") UUID uuid) {
+        noteService.delete(uuid);
 
         return ResponseEntity.ok(null);
     }
