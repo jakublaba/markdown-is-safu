@@ -1,4 +1,13 @@
 package com.krabelard.safeapp.dto;
 
-public record NoteDTO() {
+import lombok.Builder;
+
+import java.util.UUID;
+
+@Builder
+public record NoteDTO(
+        UUID uuid,
+        String name,
+        UserDTO owner
+) {
 }
