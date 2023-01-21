@@ -19,17 +19,17 @@ const AppNavbar: React.FC = () => {
 
     return (
         <>
-            <Navbar>
+            <Navbar className={"nav"}>
                 {authenticated ? (
                     <>
-                        <NavLink to={"/"}>Profile</NavLink>
-                        <NavLink to={"/notes"}>Notes</NavLink>
+                        <NavLink className={"nav-link"} to={"/"}>Profile</NavLink>
+                        <NavLink className={"nav-link"} to={"/notes"}>Notes</NavLink>
                         <Button onClick={logout}>Logout</Button>
                     </>
                 ) : (
                     <>
-                        <NavLink to={"/"}>Register</NavLink>
-                        <NavLink to={"/login"}>Login</NavLink>
+                        <NavLink className={"nav-link"} to={"/"}>Register</NavLink>
+                        <NavLink className={"nav-link"} to={"/login"}>Login</NavLink>
                     </>
                 )}
             </Navbar>

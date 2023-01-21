@@ -3,9 +3,9 @@ import ReactDOM from 'react-dom/client';
 import {applyMiddleware, createStore} from "redux";
 import {Provider} from "react-redux";
 import thunk from "redux-thunk";
-import './styles/index.css';
 import App from './App';
 import rootReducer from "./redux/reducers";
+import '../node_modules/bootstrap/dist/css/bootstrap.min.css';
 
 
 const store = createStore(rootReducer, applyMiddleware(thunk));
