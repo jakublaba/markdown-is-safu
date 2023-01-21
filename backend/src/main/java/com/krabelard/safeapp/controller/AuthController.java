@@ -1,7 +1,8 @@
 package com.krabelard.safeapp.controller;
 
-import com.krabelard.safeapp.dto.CredentialsDTO;
 import com.krabelard.safeapp.dto.LoginRequestDTO;
+import com.krabelard.safeapp.dto.LoginResponseDTO;
+import com.krabelard.safeapp.dto.RegisterRequestDTO;
 import com.krabelard.safeapp.dto.RegisterResponseDTO;
 import com.krabelard.safeapp.service.AuthService;
 import jakarta.validation.Valid;
@@ -11,9 +12,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
-
 @RestController
 @RequestMapping("/api/auth")
+@CrossOrigin(origins = "http://localhost:3000")
 @RequiredArgsConstructor
 public class AuthController {
 
@@ -26,7 +27,7 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<RegisterResponseDTO> register(@Valid @RequestBody CredentialsDTO request) {
+    public ResponseEntity<RegisterResponseDTO> register(@Valid @RequestBody RegisterRequestDTO request) {
         return new ResponseEntity<>(
                 authService.register(request),
                 HttpStatus.CREATED
@@ -34,7 +35,7 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<CredentialsDTO> login(@Valid @RequestBody LoginRequestDTO request) {
+    public ResponseEntity<LoginResponseDTO> login(@Valid @RequestBody LoginRequestDTO request) {
         return ResponseEntity.ok(authService.login(request));
     }
 
