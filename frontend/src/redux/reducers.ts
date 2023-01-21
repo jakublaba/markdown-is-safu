@@ -2,7 +2,7 @@ import {IAction, IAuthState} from "../types/redux-types";
 
 const unauthenticated: IAuthState = {
     authenticated: false,
-    jwt: undefined
+    jwt: ""
 };
 
 const rootReducer = (
