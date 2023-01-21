@@ -1,21 +1,20 @@
 import React, {useState} from "react";
 import {useDispatch} from "react-redux";
-import {IAction} from "../types/types";
+import {IAction} from "../types/redux-types";
 import {Dispatch} from "redux";
 import {Button, Spinner} from "react-bootstrap";
 import {useNavigate} from "react-router-dom";
 import {ErrorMessage, Field, Form, Formik} from "formik";
 import * as Yup from "yup";
-
-interface ILoginFormData {
-    username: string,
-    password: string
-}
+import {ILoginFormData} from "../types/formdata-types";
+import axios from "axios";
+import {ILoginResponse} from "../types/axios-types";
 
 const Login: React.FC = () => {
     const dispatch = useDispatch<Dispatch<IAction>>();
     const navigate = useNavigate();
     const [loading, setLoading] = useState<boolean>(false);
+    const [showLoginErr, setShowLoginErr] = useState<boolean>(false);
     const [passwordVisible, setPasswordVisible] = useState<boolean>(false);
 
     const initialValues: ILoginFormData = {
@@ -30,15 +29,25 @@ const Login: React.FC = () => {
 
     const login = async (formData: ILoginFormData) => {
         setLoading(true);
-        //const {username, password} = formData;
+        const {username, password} = formData;
 
-        // TODO - for now processing login request is simulated with sleep
-        const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
-        await sleep(1000);
-        dispatch({
-            type: "login"
-        });
-        navigate("/");
+        try {
+            const response = await axios.post<ILoginResponse>(
+                "http://localhost:8080/api/auth/login",
+                {
+                    username: username,
+                    password: password
+                }
+            );
+            dispatch({
+                type: "login",
+                jwt: response.data.jwt
+            });
+            navigate("/");
+        } catch (err) {
+            setLoading(false);
+            setShowLoginErr(true);
+        }
     };
 
     const togglePassword = () => {
@@ -83,9 +92,15 @@ const Login: React.FC = () => {
                     }
                 </Button>
 
-                <Button onClick={togglePassword}>
+                <Button onClick={togglePassword} disabled={loading}>
                     {passwordVisible ? "Hide password" : "Show password"}
                 </Button>
+
+                {showLoginErr && (
+                    <div className={"alert alert-danger"}>
+                        Invalid username or password
+                    </div>
+                )}
             </Form>
         </Formik>
     );

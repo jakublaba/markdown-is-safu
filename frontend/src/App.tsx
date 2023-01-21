@@ -3,7 +3,7 @@ import './styles/App.css';
 import {createBrowserRouter, createRoutesFromElements, Route, RouterProvider} from "react-router-dom";
 import AppNavbar from "./components/AppNavbar";
 import {useSelector} from "react-redux";
-import {IAuthState} from "./types/types";
+import {IAuthState} from "./types/redux-types";
 import Login from "./components/Login";
 import Profile from "./components/Profile";
 import Register from "./components/Register";

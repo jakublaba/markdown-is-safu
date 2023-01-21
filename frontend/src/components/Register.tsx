@@ -3,23 +3,15 @@ import React, {useState} from "react";
 import * as Yup from "yup";
 import {ErrorMessage, Field, Form, Formik} from "formik";
 import {Button, Spinner} from "react-bootstrap";
-import {useDispatch} from "react-redux";
-import {Dispatch} from "redux";
-import {IAction} from "../types/types";
 import {useNavigate} from "react-router-dom";
-
-
-interface IRegisterFormData {
-    username: string,
-    email: string,
-    password: string,
-    repeatPassword: string
-}
+import {IRegisterFormData} from "../types/formdata-types";
+import axios from "axios";
+import {AUTH_API_URL, IRegisterRequest} from "../types/axios-types";
 
 const Register: React.FC = () => {
-    const dispatch = useDispatch<Dispatch<IAction>>();
     const navigate = useNavigate();
     const [loading, setLoading] = useState<boolean>(false);
+    const [registrationErr, setRegistrationErr] = useState<boolean>(false);
     const [passwordVisible, setPasswordVisible] = useState<boolean>(false);
 
     const initialValues: IRegisterFormData = {
@@ -62,17 +54,21 @@ const Register: React.FC = () => {
             )
     });
 
-    const handleRegister = async (formValue: IRegisterFormData) => {
+    const register = async (formData: IRegisterFormData) => {
         setLoading(true);
-        const {username, email, password} = formValue;
+        const requestBody: IRegisterRequest = {
+            username: formData.username,
+            email: formData.email,
+            password: formData.password
+        };
 
-        const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
-        await sleep(1000);
-        setLoading(false);
-        dispatch({
-            type: "login"
-        });
-        navigate("/");
+        try {
+            await axios.post(`${AUTH_API_URL}/register`, requestBody);
+            navigate("/login");
+        } catch (err) {
+            setRegistrationErr(true);
+            setLoading(false);
+        }
     };
 
     const togglePassword = () => {
@@ -83,7 +79,7 @@ const Register: React.FC = () => {
         <Formik
             initialValues={initialValues}
             validationSchema={validationSchema}
-            onSubmit={handleRegister}
+            onSubmit={register}
         >
             <Form>
                 <Field
@@ -140,9 +136,15 @@ const Register: React.FC = () => {
                         : "Sign up"
                     }
                 </Button>
-                <Button type={"button"} onClick={togglePassword}>
+                <Button onClick={togglePassword} disabled={loading}>
                     {passwordVisible ? "Hide password" : "Show password"}
                 </Button>
+
+                {registrationErr && (
+                    <div className={"alert alert-danger"}>
+                        Registration failed
+                    </div>
+                )}
             </Form>
         </Formik>
     );

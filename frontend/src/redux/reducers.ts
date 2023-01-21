@@ -1,4 +1,4 @@
-import {IAction, IAuthState} from "../types/types";
+import {IAction, IAuthState} from "../types/redux-types";
 
 const unauthenticated: IAuthState = {
     authenticated: false,
