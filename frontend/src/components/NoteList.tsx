@@ -30,7 +30,6 @@ const NoteList: React.FC = () => {
                 console.log(err.toJSON());
             })
             .finally(() => {
-                console.log(noteList);
                 setLoaded(true);
             });
 

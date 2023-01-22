@@ -12,17 +12,17 @@ const NoteEditor: React.FC = () => {
     // otherwise, user got her by clicking note on the list - edit mode
     const {uuid} = useParams();
     const jwt = useSelector<IAuthState, string>(authState => authState.jwt);
+    const [name, setName] = useState<string>("");
+    const [markdown, setMarkdown] = useState<string>("");
     const [loaded, setLoaded] = useState<boolean>(!uuid); // in edit mode, file has to be loaded first
     const [processing, setProcessing] = useState<boolean>(false);
     const [uploadErr, setUploadErr] = useState<boolean>(false);
     // TODO - figure out how to retrieve file name from downloaded note
-    const [name, setName] = useState<string>("");
-    const [content, setContent] = useState<string>("");
 
     useEffect(() => {
         if (uuid) {
             const downloadNote = async (): Promise<AxiosResponse<Blob>> => await axios.get<Blob>(
-                `${NOTE_API_URL}/${uuid}`,
+                `${NOTE_API_URL}?uuid=${uuid}`,
                 {
                     headers: {
                         Authorization: `Bearer ${jwt}`
@@ -32,8 +32,9 @@ const NoteEditor: React.FC = () => {
 
             downloadNote()
                 .then(async (r) => {
-                    const text = await r.data.text();
-                    setContent(text);
+                    const text = await new Response(r.data).text();
+                    console.log(`Downloaded note:\n\n${text}`);
+                    setMarkdown(text);
                 })
                 .catch((err) => {
                     console.log(err.toJSON());
@@ -42,18 +43,18 @@ const NoteEditor: React.FC = () => {
                     setLoaded(true);
                 });
         }
-    }, []);
+    }, [jwt, uuid]);
 
     const save = async () => {
         setProcessing(true);
         const data = new FormData();
-        const blob: Blob = new Blob([content], {type: "plain/text"});
+        const blob: Blob = new Blob([markdown], {type: "plain/text"});
         data.append("note", blob, name);
 
         if (uuid) {
             // update note
             await axios.put(
-                NOTE_API_URL,
+                `${NOTE_API_URL}?uuid=${uuid}`,
                 data,
                 {
                     headers: {
@@ -95,6 +96,16 @@ const NoteEditor: React.FC = () => {
         }
     };
 
+    const updateName = (e: React.ChangeEvent<any>) => {
+        setName(e.target.value);
+        console.log(name);
+    }
+
+    const updateMarkdown = (e: React.ChangeEvent<any>) => {
+        setMarkdown(e.target.value);
+        console.log(markdown);
+    }
+
     return (
         <>
             {loaded ? (
@@ -103,25 +114,29 @@ const NoteEditor: React.FC = () => {
                         <Form.Group>
                             <Form.Control
                                 placeholder={"Note name"}
-                                onChange={(e) => setName(e.target.value)}
+                                onChange={updateName}
                             />
                         </Form.Group>
 
                         <Form.Group>
                             <Form.Control
+                                id={"markdown"}
                                 as={"textarea"}
                                 placeholder={"Markdown goes here"}
-                                onChange={(e) => setContent(e.target.value)}
+                                defaultValue={markdown}
+                                rows={20}
+                                onChange={updateMarkdown}
                             />
                         </Form.Group>
-
-                        <Button onClick={save} disabled={processing}>
-                            {processing ? <Spinner as={"span"}/> : "Save"}
-                        </Button>
                     </Form>
+
                     <ReactMarkdown>
-                        {content}
+                        {markdown}
                     </ReactMarkdown>
+
+                    <Button onClick={save} disabled={processing}>
+                        {processing ? <Spinner as={"span"}/> : "Save"}
+                    </Button>
                 </>
             ) : (
                 <Spinner as={"span"} variant={"grow"}/>
