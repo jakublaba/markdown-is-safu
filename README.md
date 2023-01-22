@@ -1,19 +1,51 @@
 # Safe application for storing notes
+
 ## Running the application
-> **Requirements:** docker, docker compose, make
-1. Start
+
+### Prerequisites
+
+-   docker
+-   docker compose
+-   make
+
+Start
+
 ```shell
 make start
 ```
-2. Stop
+
+Frontend will start on `https://localhost:3000` (ssl certificate is self signed so you will get a flashy warning) and backend on `http://localhost:8080`
+
+Stop
+
 ```shell
 make stop
 ```
-3. Clean up docker images
+
+Remove docker images created by compose
+
 ```shell
 make clean
 ```
-4. Rebuild the app (basically stop, clean and start combined into one)
-```shell
-make restart
+
+You can also chain the commands, for example
+
+```
+make stop clean
+make clean start
+etc.
+```
+
+## API docs
+
+You can access swagger ui at
+
+```
+http://localhost:8080/swagger-ui.html
+```
+
+Or just the raw json OpenAPI definition at
+
+```
+http://localhost:8080/v3/api-docs
 ```
