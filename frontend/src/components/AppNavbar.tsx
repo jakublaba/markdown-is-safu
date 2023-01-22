@@ -12,7 +12,8 @@ const AppNavbar: React.FC = () => {
 
     const logout = () => {
         dispatch({
-            type: "logout"
+            type: "logout",
+            jwt: ""
         });
         navigate("/login");
     };
