@@ -33,7 +33,7 @@ const NoteList: React.FC = () => {
                 setLoaded(true);
             });
 
-    }, []);
+    }, [jwt]);
 
     return (
         <>

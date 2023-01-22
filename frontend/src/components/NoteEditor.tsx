@@ -8,16 +8,13 @@ import {Button, Form, Spinner} from "react-bootstrap";
 import ReactMarkdown from "react-markdown";
 
 const NoteEditor: React.FC = () => {
-    // if uuid is undefined, user got here by clicking new note button - create mode
-    // otherwise, user got her by clicking note on the list - edit mode
     const {uuid} = useParams();
     const jwt = useSelector<IAuthState, string>(authState => authState.jwt);
     const [name, setName] = useState<string>("");
     const [markdown, setMarkdown] = useState<string>("");
-    const [loaded, setLoaded] = useState<boolean>(!uuid); // in edit mode, file has to be loaded first
+    const [loaded, setLoaded] = useState<boolean>(!uuid);
     const [processing, setProcessing] = useState<boolean>(false);
     const [uploadErr, setUploadErr] = useState<boolean>(false);
-    // TODO - figure out how to retrieve file name from downloaded note
 
     useEffect(() => {
         if (uuid) {
@@ -32,8 +29,13 @@ const NoteEditor: React.FC = () => {
 
             downloadNote()
                 .then(async (r) => {
+                    const header = r.headers["content-disposition"];
+                    if (header) {
+                        const start = header.indexOf('"') + 1;
+                        const end = header.lastIndexOf('"');
+                        setName(header.substring(start, end));
+                    }
                     const text = await new Response(r.data).text();
-                    console.log(`Downloaded note:\n\n${text}`);
                     setMarkdown(text);
                 })
                 .catch((err) => {
@@ -52,7 +54,6 @@ const NoteEditor: React.FC = () => {
         data.append("note", blob, name);
 
         if (uuid) {
-            // update note
             await axios.put(
                 `${NOTE_API_URL}?uuid=${uuid}`,
                 data,
@@ -73,7 +74,6 @@ const NoteEditor: React.FC = () => {
                     setProcessing(false);
                 });
         } else {
-            // upload new note
             await axios.post(
                 NOTE_API_URL,
                 data,
@@ -98,12 +98,10 @@ const NoteEditor: React.FC = () => {
 
     const updateName = (e: React.ChangeEvent<any>) => {
         setName(e.target.value);
-        console.log(name);
     }
 
     const updateMarkdown = (e: React.ChangeEvent<any>) => {
         setMarkdown(e.target.value);
-        console.log(markdown);
     }
 
     return (
@@ -114,6 +112,7 @@ const NoteEditor: React.FC = () => {
                         <Form.Group>
                             <Form.Control
                                 placeholder={"Note name"}
+                                defaultValue={name}
                                 onChange={updateName}
                             />
                         </Form.Group>
