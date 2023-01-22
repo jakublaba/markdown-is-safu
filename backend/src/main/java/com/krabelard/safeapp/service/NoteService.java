@@ -8,7 +8,9 @@ import com.krabelard.safeapp.exception.note.NoteIOException;
 import com.krabelard.safeapp.exception.note.NoteNotFoundException;
 import com.krabelard.safeapp.exception.user.UserNotFoundException;
 import com.krabelard.safeapp.mapper.NoteMapper;
+import com.krabelard.safeapp.model.IV;
 import com.krabelard.safeapp.model.Note;
+import com.krabelard.safeapp.repository.IvRepository;
 import com.krabelard.safeapp.repository.NoteRepository;
 import com.krabelard.safeapp.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -27,8 +29,10 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class NoteService {
 
+    private final IvRepository ivRepository;
     private final NoteRepository noteRepository;
     private final UserRepository userRepository;
+    private final AesService aes;
     private final NoteMapper noteMapper;
 
     public UUID create(MultipartFile file) {
@@ -38,15 +42,23 @@ public class NoteService {
         }
 
         try {
-            val content = file.getBytes();
+            val raw = file.getBytes();
+            val p = aes.encrypt(raw);
+            val encrypted = p.getKey();
+            val ivBytes = p.getValue();
             val note = Note.builder()
                     .uuid(UUID.randomUUID())
                     .name(fileName)
                     .owner(userRepository.findByUsername(currentUser())
                             .orElseThrow(() -> new UserNotFoundException(currentUser())))
-                    .content(content)
+                    .content(encrypted)
+                    .build();
+            val iv = IV.builder()
+                    .value(ivBytes)
+                    .note(note)
                     .build();
 
+            ivRepository.save(iv);
             return noteRepository.save(note).getUuid();
         } catch (IOException e) {
             throw new NoteIOException(file.getOriginalFilename());
@@ -63,10 +75,14 @@ public class NoteService {
     public FileDTO downloadNote(UUID uuid) {
         val note = noteRepository.findByUuidAndOwnerUsername(uuid, currentUser())
                 .orElseThrow(() -> new NoteNotFoundException(uuid));
+        val iv = ivRepository.findByNoteUuid(uuid)
+                .orElseThrow(() -> new RuntimeException("Cannot decrypt note"));
+
+        val decrypted = aes.decrypt(note.getContent(), iv.getValue());
 
         return FileDTO.builder()
                 .fileName(note.getName())
-                .content(note.getContent())
+                .content(decrypted)
                 .build();
     }
 
@@ -76,7 +92,11 @@ public class NoteService {
         val fileName = StringUtils.cleanPath(Objects.requireNonNull(file.getOriginalFilename()));
         note.setName(fileName);
         try {
-            note.setContent(file.getBytes());
+            val raw = file.getBytes();
+            val ivBytes = ivRepository.findByNoteUuid(uuid)
+                    .orElseThrow(() -> new RuntimeException("Cannot decrypt note"));
+            val encrypted = aes.encrypt(raw, ivBytes.getValue());
+            note.setContent(encrypted);
         } catch (IOException e) {
             throw new NoteIOException(fileName);
         }

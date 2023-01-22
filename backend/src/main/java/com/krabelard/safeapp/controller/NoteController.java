@@ -4,6 +4,7 @@ package com.krabelard.safeapp.controller;
 import com.krabelard.safeapp.dto.NoteDTO;
 import com.krabelard.safeapp.service.NoteService;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import lombok.val;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -48,6 +49,7 @@ public class NoteController {
                 .body(note.content());
     }
 
+    @SneakyThrows
     @PutMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<NoteDTO> update(
             @RequestParam("uuid") UUID uuid,
