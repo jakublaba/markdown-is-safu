@@ -84,13 +84,6 @@ public class NoteService {
         return noteMapper.entityToDto(noteRepository.save(note));
     }
 
-    public void delete(UUID uuid) {
-        val note = noteRepository.findByUuidAndOwnerUsername(uuid, currentUser())
-                .orElseThrow(() -> new NoteNotFoundException(uuid));
-
-        noteRepository.delete(note);
-    }
-
     private String currentUser() {
         return SecurityContextHolder.getContext().getAuthentication().getName();
     }

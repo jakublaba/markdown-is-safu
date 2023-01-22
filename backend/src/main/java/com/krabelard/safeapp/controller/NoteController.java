@@ -17,7 +17,6 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/notes")
-@CrossOrigin(origins = "http://localhost:3000")
 @RequiredArgsConstructor
 public class NoteController {
 
@@ -50,10 +49,11 @@ public class NoteController {
     }
 
     @PutMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<NoteDTO> update(@RequestParam("uuid") UUID uuid) {
-        noteService.delete(uuid);
-
-        return ResponseEntity.ok(null);
+    public ResponseEntity<NoteDTO> update(
+            @RequestParam("uuid") UUID uuid,
+            @RequestParam("note") MultipartFile file
+    ) {
+        return ResponseEntity.ok(noteService.update(uuid, file));
     }
 
 }
