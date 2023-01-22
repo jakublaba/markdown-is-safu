@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.val;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.Customizer;
@@ -83,6 +84,7 @@ public class WebSecurityConfig {
         config.setAllowedOrigins(List.of("http://localhost:3000"));
         config.setAllowedMethods(List.of("*"));
         config.setAllowedHeaders(List.of("*"));
+        config.addExposedHeader(HttpHeaders.CONTENT_DISPOSITION);
         val source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
 
