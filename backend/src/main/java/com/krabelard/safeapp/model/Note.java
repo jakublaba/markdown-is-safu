@@ -31,4 +31,8 @@ public class Note {
     @Lob
     private byte[] content;
 
+    private byte[] salt;
+
+    private byte[] iv;
+
 }
