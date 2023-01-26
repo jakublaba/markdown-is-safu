@@ -16,6 +16,7 @@ import java.util.AbstractMap;
 @Service
 public class AesService {
 
+    private static final String algorithm = "AES/CBC/PKCS5Padding";
     private final SecretKey key;
 
     @Autowired
@@ -25,7 +26,7 @@ public class AesService {
 
     @SneakyThrows
     public AbstractMap.SimpleEntry<byte[], byte[]> encrypt(byte[] file) {
-        val cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+        val cipher = Cipher.getInstance(algorithm);
         val iv = generateIv();
         cipher.init(Cipher.ENCRYPT_MODE, key, new IvParameterSpec(iv));
 
@@ -34,7 +35,7 @@ public class AesService {
 
     @SneakyThrows
     public byte[] encrypt(byte[] file, byte[] iv) {
-        val cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+        val cipher = Cipher.getInstance(algorithm);
         cipher.init(Cipher.ENCRYPT_MODE, key, new IvParameterSpec(iv));
 
         return cipher.doFinal(file);
@@ -42,7 +43,7 @@ public class AesService {
 
     @SneakyThrows
     public byte[] decrypt(byte[] file, byte[] iv) {
-        val cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+        val cipher = Cipher.getInstance(algorithm);
         cipher.init(Cipher.DECRYPT_MODE, key, new IvParameterSpec(iv));
 
         return cipher.doFinal(file);

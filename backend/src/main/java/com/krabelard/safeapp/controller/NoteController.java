@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/notes")
+@RequestMapping("api/notes")
 @RequiredArgsConstructor
 public class NoteController {
 
@@ -25,13 +25,13 @@ public class NoteController {
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<UUID> upload(@RequestParam("note") MultipartFile file) {
-        val uuid = noteService.create(file);
-
-        return new ResponseEntity<>(uuid, HttpStatus.CREATED);
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(noteService.create(file));
     }
 
     @GetMapping(
-            value = "/all",
+            value = "all",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
     public ResponseEntity<List<NoteDTO>> all() {
@@ -44,7 +44,8 @@ public class NoteController {
     public ResponseEntity<byte[]> download(@RequestParam("uuid") UUID uuid) {
         val note = noteService.downloadNote(uuid);
 
-        return ResponseEntity.ok()
+        return ResponseEntity
+                .ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, String.format("attachment; filename=\"%s\"", note.fileName()))
                 .body(note.content());
     }
@@ -55,7 +56,8 @@ public class NoteController {
             @RequestParam("uuid") UUID uuid,
             @RequestParam("note") MultipartFile file
     ) {
-        return ResponseEntity.ok(noteService.update(uuid, file));
+        return ResponseEntity
+                .ok(noteService.update(uuid, file));
     }
 
 }
