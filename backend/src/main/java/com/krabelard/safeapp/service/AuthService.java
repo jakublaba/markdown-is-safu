@@ -4,7 +4,7 @@ package com.krabelard.safeapp.service;
 import com.krabelard.safeapp.dto.LoginRequestDTO;
 import com.krabelard.safeapp.dto.LoginResponseDTO;
 import com.krabelard.safeapp.dto.RegisterRequestDTO;
-import com.krabelard.safeapp.dto.RegisterResponseDTO;
+import com.krabelard.safeapp.dto.UserDTO;
 import com.krabelard.safeapp.exception.user.EmailTakenException;
 import com.krabelard.safeapp.exception.user.UserNotFoundException;
 import com.krabelard.safeapp.exception.user.UsernameTakenException;
@@ -27,7 +27,7 @@ public class AuthService {
     private final JwtService jwtService;
     private final UserRepository userRepository;
 
-    public RegisterResponseDTO register(RegisterRequestDTO dto) {
+    public UserDTO register(RegisterRequestDTO dto) {
         val username = dto.username();
         val email = dto.email();
         val password = dto.password();
@@ -42,7 +42,7 @@ public class AuthService {
 
         userRepository.save(user);
 
-        return RegisterResponseDTO.builder()
+        return UserDTO.builder()
                 .username(username)
                 .email(email)
                 .build();
